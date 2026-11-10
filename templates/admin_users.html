@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-0">
+                <h6 class="mb-0 fw-bold">Создать учетную запись</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add_user">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Логин</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">ФИО</label>
+                        <input type="text" name="full_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Роль в системе</label>
+                        <select name="role" class="form-select">
+                            <option value="client">Клиент</option>
+                            <option value="master">Мастер</option>
+                            <option value="manager">Менеджер</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Пароль</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold rounded-3 shadow-sm">Создать пользователя</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-0">
+                <h5 class="mb-0 fw-bold">Управление пользователями системы</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light text-muted small">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Логин</th>
+                            <th>ФИО</th>
+                            <th>Роль</th>
+                            <th class="text-end pe-4">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td class="ps-4">#{{ u.id }}</td>
+                            <td class="fw-semibold">{{ u.username }}</td>
+                            <td>{{ u.full_name }}</td>
+                            <td>
+                                <span class="badge {% if u.role == 'admin' %}bg-danger{% elif u.role == 'manager' %}bg-warning text-dark{% elif u.role == 'master' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ u.role }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                {% if u.id != session.get('user_id') %}
+                                <form action="{{ url_for('admin_users') }}" method="POST" class="d-inline" onsubmit="return confirm('Удалить пользователя?');">
+                                    <input type="hidden" name="action" value="delete_user">
+                                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted small">текущий</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
