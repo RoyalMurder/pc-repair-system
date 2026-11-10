@@ -2,75 +2,115 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0">Регистрация новой заявки на ремонт</h5>
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 px-4 border-0">
+                <h4 class="mb-0 fw-bold">Оформление заявки на ремонт техники</h4>
+                <p class="text-muted small mb-0">Укажите параметры устройства и подробное описание проблемы</p>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-4 p-md-5">
                 <form method="POST" id="newOrderForm">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Клиент</label>
-                        <div class="btn-group w-100 mb-3" role="group">
-                            <input type="radio" class="btn-check" name="client_mode" id="modeExisting" value="existing" checked>
-                            <label class="btn btn-outline-secondary btn-sm" for="modeExisting">Выбрать из базы</label>
-
-                            <input type="radio" class="btn-check" name="client_mode" id="modeNew" value="new">
-                            <label class="btn btn-outline-secondary btn-sm" for="modeNew">Новый клиент</label>
-                        </div>
-
-                        <div id="existingClientBlock">
-                            <select name="client_id" class="form-select">
-                                {% for c in clients %}
-                                <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div id="newClientBlock" class="row g-2 d-none">
-                            <div class="col-md-5">
-                                <input type="text" name="client_name" class="form-control" placeholder="ФИО клиента">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" name="client_phone" class="form-control" placeholder="Телефон">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="email" name="client_email" class="form-control" placeholder="Email">
-                            </div>
-                        </div>
+                    {% if session.get('role') in ['admin', 'manager'] %}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Выбрать клиента</label>
+                        <select name="client_id" class="form-select" required>
+                            {% for c in clients %}
+                            <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone }})</option>
+                            {% endfor %}
+                        </select>
                     </div>
-
                     <hr class="my-4">
+                    {% endif %}
 
-                    <div class="row g-3">
+                    <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-laptop text-primary me-2"></i>Параметры устройства</h5>
+                    <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">Тип техники</label>
+                            <label class="form-label small fw-semibold">Тип техники</label>
                             <select name="device_type" class="form-select" required>
                                 <option value="Ноутбук">Ноутбук</option>
                                 <option value="Системный блок">Системный блок</option>
                                 <option value="Моноблок">Моноблок</option>
+                                <option value="Видеокарта">Видеокарта</option>
+                                <option value="Игровая консоль">Игровая консоль</option>
                                 <option value="Монитор">Монитор</option>
-                                <option value="Комплектующие">Комплектующие</option>
                             </select>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Бренд и модель</label>
-                            <input type="text" name="brand_model" class="form-control" placeholder="Например: ASUS VivoBook 15" required>
+                            <label class="form-label small fw-semibold">Бренд и модель</label>
+                            <input type="text" name="brand_model" class="form-control" placeholder="Например: ASUS ROG Strix G15" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Серийный номер</label>
+                            <label class="form-label small fw-semibold">Серийный номер</label>
                             <input type="text" name="serial_number" class="form-control" placeholder="S/N или Б/Н">
                         </div>
+                    </div>
 
+                    <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i>Характеристики (выберите или введите свои)</h5>
+                    <div class="row g-3 mb-4 bg-light p-3 rounded-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Процессор (CPU)</label>
+                            <input type="text" name="cpu_spec" class="form-control list-search-input" list="cpuList" placeholder="Intel Core i5 / AMD Ryzen 5...">
+                            <datalist id="cpuList">
+                                <option value="Intel Core i3-12100F">
+                                <option value="Intel Core i5-12400F">
+                                <option value="Intel Core i5-13400">
+                                <option value="Intel Core i7-12700H">
+                                <option value="Intel Core i7-13700KF">
+                                <option value="AMD Ryzen 3 3200G">
+                                <option value="AMD Ryzen 5 5600X">
+                                <option value="AMD Ryzen 7 5800H">
+                                <option value="AMD Ryzen 7 7700X">
+                                <option value="Apple M1 / M2 / M3">
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Видеокарта (GPU)</label>
+                            <input type="text" name="gpu_spec" class="form-control list-search-input" list="gpuList" placeholder="NVIDIA GeForce RTX 3060 / AMD...">
+                            <datalist id="gpuList">
+                                <option value="NVIDIA GeForce GTX 1650">
+                                <option value="NVIDIA GeForce RTX 3060 12GB">
+                                <option value="NVIDIA GeForce RTX 4060">
+                                <option value="NVIDIA GeForce RTX 4070 Ti">
+                                <option value="AMD Radeon RX 6600">
+                                <option value="AMD Radeon RX 7800 XT">
+                                <option value="Встроенная графика (Integrated)">
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Оперативная память (RAM)</label>
+                            <input type="text" name="ram_spec" class="form-control list-search-input" list="ramList" placeholder="8 ГБ / 16 ГБ / 32 ГБ...">
+                            <datalist id="ramList">
+                                <option value="8 ГБ DDR4">
+                                <option value="16 ГБ DDR4">
+                                <option value="16 ГБ DDR5">
+                                <option value="32 ГБ DDR5">
+                                <option value="64 ГБ DDR5">
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Накопитель (SSD / HDD)</label>
+                            <input type="text" name="storage_spec" class="form-control list-search-input" list="storageList" placeholder="SSD 512GB / HDD 1TB...">
+                            <datalist id="storageList">
+                                <option value="SSD 256 ГБ NVMe">
+                                <option value="SSD 512 ГБ NVMe">
+                                <option value="SSD 1 ТБ M.2">
+                                <option value="HDD 1 ТБ">
+                                <option value="HDD 2 ТБ">
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-triangle-exclamation text-primary me-2"></i>Проблема и обслуживание</h5>
+                    <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Описание неисправности со слов клиента</label>
-                            <textarea name="issue_description" class="form-control" rows="3" required></textarea>
+                            <label class="form-label small fw-semibold">Описание неисправности</label>
+                            <textarea name="issue_description" class="form-control" rows="3" placeholder="Подробно опишите симптомы поломки..." required></textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Назначить мастера</label>
+                            <label class="form-label small fw-semibold">Назначить инженера</label>
                             <select name="master_id" class="form-select">
-                                <option value="">Назначить позже</option>
+                                <option value="">Назначить автоматически</option>
                                 {% for m in masters %}
                                 <option value="{{ m.id }}">{{ m.full_name }} — {{ m.specialization }}</option>
                                 {% endfor %}
@@ -78,9 +118,9 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Типовая услуга (для расчета стоимости)</label>
+                            <label class="form-label small fw-semibold">Типовая услуга (авто-расчет цены)</label>
                             <select id="servicePreset" class="form-select">
-                                <option value="0">Указать сумму вручную</option>
+                                <option value="0">Указать стоимость вручную</option>
                                 {% for s in services %}
                                 <option value="{{ s.base_price }}">{{ s.title }} ({{ "%.0f"|format(s.base_price) }} ₽)</option>
                                 {% endfor %}
@@ -88,14 +128,14 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">Предварительная стоимость (₽)</label>
-                            <input type="number" step="50" name="total_cost" id="totalCostInput" class="form-control" value="800" required>
+                            <label class="form-label small fw-semibold">Предварительная стоимость (₽)</label>
+                            <input type="number" step="50" name="total_cost" id="totalCostInput" class="form-control fw-bold text-success" value="800" required>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{{ url_for('index') }}" class="btn btn-light">Отмена</a>
-                        <button type="submit" class="btn btn-primary">Сохранить заявку</button>
+                    <div class="d-flex justify-content-end gap-2 mt-5">
+                        <a href="{{ url_for('index') }}" class="btn btn-light px-4">Отмена</a>
+                        <button type="submit" class="btn btn-dark px-5 fw-semibold shadow-sm">Оформить заявку</button>
                     </div>
                 </form>
             </div>
