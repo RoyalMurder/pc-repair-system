@@ -1,26 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-5 col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 text-center">
-                <h5 class="mb-0">Авторизация в системе</h5>
+<div class="row justify-content-center align-items-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark">Сервисный Центр «ТехСервис»</h2>
+            <p class="text-muted">Автоматизированная система учета ремонтов и обслуживания техники</p>
+        </div>
+
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                <ul class="nav nav-pills nav-fill gap-2 p-1 bg-light rounded-pill" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill fw-semibold py-2" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginPane" type="button" role="tab">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i>Вход
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-semibold py-2" id="register-tab" data-bs-toggle="tab" data-bs-target="#registerPane" type="button" role="tab">
+                            <i class="fa-solid fa-user-plus me-2"></i>Регистрация
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <div class="card-body p-4">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label small">Логин сотрудника</label>
-                        <input type="text" name="username" class="form-control" placeholder="admin" required>
+            
+            <div class="card-body p-4 p-md-5">
+                <div class="tab-content" id="authTabsContent">
+                    <!-- Форма входа -->
+                    <div class="tab-pane fade show active" id="loginPane" role="tabpanel">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="login">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Логин</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-user text-muted"></i></span>
+                                    <input type="text" name="username" class="form-control border-start-0 ps-0" placeholder="admin, manager, master или client" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-muted">Пароль</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
+                                    <input type="password" name="password" class="form-control border-start-0 ps-0" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold rounded-3 shadow-sm">
+                                Войти в систему
+                            </button>
+                            <div class="text-center mt-3 small text-muted">
+                                Тестовый пароль для всех ролей: <b>12345</b>
+                            </div>
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Пароль</label>
-                        <input type="password" name="password" class="form-control" placeholder="12345" required>
+
+                    <!-- Форма регистрации -->
+                    <div class="tab-pane fade" id="registerPane" role="tabpanel">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="register">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">ФИО полностью</label>
+                                <input type="text" name="reg_fullname" class="form-control" placeholder="Иванов Иван Иванович" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Логин</label>
+                                <input type="text" name="reg_username" class="form-control" placeholder="ivan_client" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Номер телефона</label>
+                                <input type="text" name="reg_phone" class="form-control" placeholder="+7 (999) 000-00-00" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted">Пароль</label>
+                                <input type="password" name="reg_password" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-muted">Повторите пароль</label>
+                                <input type="password" name="reg_password_confirm" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm">
+                                Зарегистрироваться
+                            </button>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Войти</button>
-                </form>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('register') }}" class="small text-decoration-none">Зарегистрировать нового сотрудника</a>
                 </div>
             </div>
         </div>
