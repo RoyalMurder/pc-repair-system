@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 text-center">
+                <h5 class="mb-0">Регистрация сотрудника</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small">ФИО сотрудника</label>
+                        <input type="text" name="full_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Логин</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Должность / Роль</label>
+                        <select name="role" class="form-select">
+                            <option value="Менеджер приемки">Менеджер приемки</option>
+                            <option value="Инженер СЦ">Инженер СЦ</option>
+                            <option value="Администратор">Администратор</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Пароль</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Создать аккаунт</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

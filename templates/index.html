@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Всего заявок</div>
+                <div class="fs-3 fw-bold mt-1">{{ stats.total }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">В работе / Диагностика</div>
+                <div class="fs-3 fw-bold text-primary mt-1">{{ stats.active }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Готовы к выдаче</div>
+                <div class="fs-3 fw-bold text-success mt-1">{{ stats.ready }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Выручка по выполненным</div>
+                <div class="fs-3 fw-bold mt-1">{{ "%.0f"|format(stats.revenue) }} ₽</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <h5 class="mb-0">Журнал учета ремонтов</h5>
+            </div>
+            <div class="col-md-5">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Поиск по клиенту, модели, серийному номеру...">
+            </div>
+            <div class="col-md-3">
+                <select id="statusFilter" class="form-select form-select-sm">
+                    <option value="all">Все статусы</option>
+                    <option value="Принят">Принят</option>
+                    <option value="Диагностика">Диагностика</option>
+                    <option value="В работе">В работе</option>
+                    <option value="Готов к выдаче">Готов к выдаче</option>
+                    <option value="Выдан">Выдан</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="ordersTable">
+            <thead class="table-light">
+                <tr>
+                    <th>№</th>
+                    <th>Дата</th>
+                    <th>Клиент</th>
+                    <th>Устройство</th>
+                    <th>Неисправность</th>
+                    <th>Мастер</th>
+                    <th>Стоимость</th>
+                    <th>Статус</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr class="order-row" data-status="{{ o.status }}">
+                    <td class="fw-semibold">#{{ o.id }}</td>
+                    <td class="text-muted small">{{ o.created_at.strftime('%d.%m.%Y') }}</td>
+                    <td>
+                        <div class="fw-medium">{{ o.client_name }}</div>
+                        <div class="text-muted small">{{ o.client_phone }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary-subtle text-dark">{{ o.device_type }}</span>
+                        <div class="fw-medium mt-1">{{ o.brand_model }}</div>
+                        <div class="text-muted small">S/N: {{ o.serial_number }}</div>
+                    </td>
+                    <td class="issue-cell">{{ o.issue_description }}</td>
+                    <td>{{ o.master_name or 'Не назначен' }}</td>
+                    <td class="fw-semibold">{{ "%.0f"|format(o.total_cost) }} ₽</td>
+                    <td>
+                        <select class="form-select form-select-sm status-select" data-order-id="{{ o.id }}">
+                            {% for st in ['Принят', 'Диагностика', 'В работе', 'Готов к выдаче', 'Выдан'] %}
+                            <option value="{{ st }}" {% if o.status == st %}selected{% endif %}>{{ st }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="text-end">
+                        <form action="{{ url_for('delete_order', order_id=o.id) }}" method="POST" onsubmit="return confirm('Удалить заявку #{{ o.id }}?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">✕</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-muted">Заявок пока нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

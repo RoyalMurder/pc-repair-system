@@ -1,0 +1,27 @@
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.navbar-brand {
+    letter-spacing: 0.4px;
+}
+
+.issue-cell {
+    max-width: 280px;
+    font-size: 0.9rem;
+}
+
+.status-select {
+    min-width: 145px;
+    font-weight: 500;
+}
+
+.status-select.status-ready {
+    border-color: #198754;
+    color: #198754;
+}
+
+.status-select.status-work {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}

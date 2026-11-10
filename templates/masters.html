@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0">Инженеры сервисного центра</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ФИО мастера</th>
+                            <th>Специализация</th>
+                            <th>Телефон</th>
+                            <th>Активных заказов</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in masters %}
+                        <tr>
+                            <td class="fw-medium">{{ m.full_name }}</td>
+                            <td>{{ m.specialization }}</td>
+                            <td class="text-muted small">{{ m.phone }}</td>
+                            <td><span class="badge bg-dark">{{ m.active_orders }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0">Прайс-лист базовых услуг</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Наименование услуги</th>
+                            <th class="text-end">Базовая стоимость</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in services %}
+                        <tr>
+                            <td>{{ s.title }}</td>
+                            <td class="text-end fw-semibold">{{ "%.0f"|format(s.base_price) }} ₽</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0">Добавить сотрудника</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small">ФИО инженера</label>
+                        <input type="text" name="full_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Специализация</label>
+                        <input type="text" name="specialization" class="form-control" placeholder="Например: Пайка BGA, ремонт плат" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Контактный телефон</label>
+                        <input type="text" name="phone" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Добавить мастера</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

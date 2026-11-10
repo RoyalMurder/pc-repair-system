@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Регистрация новой заявки на ремонт</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" id="newOrderForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Клиент</label>
+                        <div class="btn-group w-100 mb-3" role="group">
+                            <input type="radio" class="btn-check" name="client_mode" id="modeExisting" value="existing" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="modeExisting">Выбрать из базы</label>
+
+                            <input type="radio" class="btn-check" name="client_mode" id="modeNew" value="new">
+                            <label class="btn btn-outline-secondary btn-sm" for="modeNew">Новый клиент</label>
+                        </div>
+
+                        <div id="existingClientBlock">
+                            <select name="client_id" class="form-select">
+                                {% for c in clients %}
+                                <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div id="newClientBlock" class="row g-2 d-none">
+                            <div class="col-md-5">
+                                <input type="text" name="client_name" class="form-control" placeholder="ФИО клиента">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="client_phone" class="form-control" placeholder="Телефон">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="email" name="client_email" class="form-control" placeholder="Email">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Тип техники</label>
+                            <select name="device_type" class="form-select" required>
+                                <option value="Ноутбук">Ноутбук</option>
+                                <option value="Системный блок">Системный блок</option>
+                                <option value="Моноблок">Моноблок</option>
+                                <option value="Монитор">Монитор</option>
+                                <option value="Комплектующие">Комплектующие</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Бренд и модель</label>
+                            <input type="text" name="brand_model" class="form-control" placeholder="Например: ASUS VivoBook 15" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Серийный номер</label>
+                            <input type="text" name="serial_number" class="form-control" placeholder="S/N или Б/Н">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Описание неисправности со слов клиента</label>
+                            <textarea name="issue_description" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Назначить мастера</label>
+                            <select name="master_id" class="form-select">
+                                <option value="">Назначить позже</option>
+                                {% for m in masters %}
+                                <option value="{{ m.id }}">{{ m.full_name }} — {{ m.specialization }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Типовая услуга (для расчета стоимости)</label>
+                            <select id="servicePreset" class="form-select">
+                                <option value="0">Указать сумму вручную</option>
+                                {% for s in services %}
+                                <option value="{{ s.base_price }}">{{ s.title }} ({{ "%.0f"|format(s.base_price) }} ₽)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Предварительная стоимость (₽)</label>
+                            <input type="number" step="50" name="total_cost" id="totalCostInput" class="form-control" value="800" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-light">Отмена</a>
+                        <button type="submit" class="btn btn-primary">Сохранить заявку</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
