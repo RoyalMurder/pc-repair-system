@@ -3,15 +3,15 @@
 {% block content %}
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100 rounded-4">
             <div class="card-body">
-                <div class="text-muted small">Всего заявок</div>
-                <div class="fs-3 fw-bold mt-1">{{ stats.total }}</div>
+                <div class="text-muted small">Всего заказов</div>
+                <div class="fs-3 fw-bold mt-1 text-dark">{{ stats.total }}</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100 rounded-4">
             <div class="card-body">
                 <div class="text-muted small">В работе / Диагностика</div>
                 <div class="fs-3 fw-bold text-primary mt-1">{{ stats.active }}</div>
@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100 rounded-4">
             <div class="card-body">
                 <div class="text-muted small">Готовы к выдаче</div>
                 <div class="fs-3 fw-bold text-success mt-1">{{ stats.ready }}</div>
@@ -27,23 +27,26 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm h-100 rounded-4">
             <div class="card-body">
-                <div class="text-muted small">Выручка по выполненным</div>
-                <div class="fs-3 fw-bold mt-1">{{ "%.0f"|format(stats.revenue) }} ₽</div>
+                <div class="text-muted small">Выручка сервиса</div>
+                <div class="fs-3 fw-bold text-dark mt-1">{{ "%.0f"|format(stats.revenue) }} ₽</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3">
-        <div class="row g-2 align-items-center">
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 px-4 border-0">
+        <div class="row g-3 align-items-center">
             <div class="col-md-4">
-                <h5 class="mb-0">Журнал учета ремонтов</h5>
+                <h5 class="mb-0 fw-bold">Журнал ремонтов техники</h5>
             </div>
             <div class="col-md-5">
-                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Поиск по клиенту, модели, серийному номеру...">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Поиск по клиенту, модели, характеристикам...">
+                </div>
             </div>
             <div class="col-md-3">
                 <select id="statusFilter" class="form-select form-select-sm">
@@ -59,36 +62,41 @@
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" id="ordersTable">
-            <thead class="table-light">
+            <thead class="table-light text-muted small">
                 <tr>
-                    <th>№</th>
+                    <th class="ps-4">№</th>
                     <th>Дата</th>
                     <th>Клиент</th>
-                    <th>Устройство</th>
+                    <th>Устройство & Характеристики</th>
                     <th>Неисправность</th>
                     <th>Мастер</th>
                     <th>Стоимость</th>
                     <th>Статус</th>
-                    <th></th>
+                    <th class="text-end pe-4">Действия</th>
                 </tr>
             </thead>
             <tbody>
                 {% for o in orders %}
                 <tr class="order-row" data-status="{{ o.status }}">
-                    <td class="fw-semibold">#{{ o.id }}</td>
+                    <td class="ps-4 fw-bold">#{{ o.id }}</td>
                     <td class="text-muted small">{{ o.created_at.strftime('%d.%m.%Y') }}</td>
                     <td>
                         <div class="fw-medium">{{ o.client_name }}</div>
                         <div class="text-muted small">{{ o.client_phone }}</div>
                     </td>
                     <td>
-                        <span class="badge bg-secondary-subtle text-dark">{{ o.device_type }}</span>
-                        <div class="fw-medium mt-1">{{ o.brand_model }}</div>
-                        <div class="text-muted small">S/N: {{ o.serial_number }}</div>
+                        <span class="badge bg-secondary-subtle text-dark mb-1">{{ o.device_type }}</span>
+                        <div class="fw-semibold">{{ o.brand_model }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            {% if o.cpu_spec %}CPU: {{ o.cpu_spec }} | {% endif %}
+                            {% if o.gpu_spec %}GPU: {{ o.gpu_spec }} | {% endif %}
+                            {% if o.ram_spec %}RAM: {{ o.ram_spec }} | {% endif %}
+                            {% if o.storage_spec %}SSD/HDD: {{ o.storage_spec }}{% endif %}
+                        </div>
                     </td>
-                    <td class="issue-cell">{{ o.issue_description }}</td>
-                    <td>{{ o.master_name or 'Не назначен' }}</td>
-                    <td class="fw-semibold">{{ "%.0f"|format(o.total_cost) }} ₽</td>
+                    <td class="issue-cell text-muted small">{{ o.issue_description }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ o.master_name or 'Не назначен' }}</span></td>
+                    <td class="fw-bold">{{ "%.0f"|format(o.total_cost) }} ₽</td>
                     <td>
                         <select class="form-select form-select-sm status-select" data-order-id="{{ o.id }}">
                             {% for st in ['Принят', 'Диагностика', 'В работе', 'Готов к выдаче', 'Выдан'] %}
@@ -96,15 +104,21 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td class="text-end">
-                        <form action="{{ url_for('delete_order', order_id=o.id) }}" method="POST" onsubmit="return confirm('Удалить заявку #{{ o.id }}?');">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">✕</button>
+                    <td class="text-end pe-4">
+                        {% if session.get('role') in ['admin', 'manager'] %}
+                        <form action="{{ url_for('delete_order', order_id=o.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Удалить заказ #{{ o.id }}?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Удалить">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </form>
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="9" class="text-center py-4 text-muted">Заявок пока нет</td>
+                    <td colspan="9" class="text-center py-5 text-muted">Заявок на ремонт пока не найдено</td>
                 </tr>
                 {% endfor %}
             </tbody>
