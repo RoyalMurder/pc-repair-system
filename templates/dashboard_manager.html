@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold text-dark mb-4">Панель управления (Менеджер)</h3>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-primary text-white">
+                <div class="card-body p-4">
+                    <div class="text-white-50 small fw-medium">Новые заявки (Не распределены)</div>
+                    <div class="fs-2 fw-bold mt-1">{{ stats.new }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="text-muted small fw-medium">В процессе ремонта</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ stats.active }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="text-muted small fw-medium">Всего в базе</div>
+                    <div class="fs-2 fw-bold text-dark mt-1">{{ stats.total }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom-0">
+            <h5 class="mb-0 fw-bold">Все заявки клиентов</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-muted small">
+                    <tr>
+                        <th class="ps-4">№ / Тип</th>
+                        <th>Клиент</th>
+                        <th>Устройство & Проблема</th>
+                        <th>Статус</th>
+                        <th>Мастер</th>
+                        <th class="text-end pe-4">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="fw-bold text-dark d-block">#{{ o.id }}</span>
+                            <span class="badge bg-light text-dark border">{{ o.request_type }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-medium text-dark">{{ o.client_name }}</div>
+                            <div class="text-muted small">{{ o.client_phone }}</div>
+                        </td>
+                        <td style="max-width: 300px;">
+                            <div class="fw-semibold text-dark">{{ o.device_type }} {{ o.brand_model }}</div>
+                            <div class="text-muted small text-truncate">{{ o.issue_description }}</div>
+                        </td>
+                        <td>
+                            <span class="badge {% if o.status == 'Новая заявка' %}bg-danger{% elif o.status == 'Назначен мастер' %}bg-info text-dark{% elif o.status == 'Готов к выдаче' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                {{ o.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if o.master_name %}
+                                <span class="fw-medium small text-dark"><i class="fa-solid fa-user-gear text-muted me-1"></i>{{ o.master_name }}</span>
+                            {% else %}
+                                <span class="text-danger small fw-medium">Не назначен</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#assignModal{{ o.id }}">
+                                {% if o.master_id %}Сменить мастера{% else %}Назначить{% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <!-- Модальное окно назначения мастера -->
+                    <div class="modal fade" id="assignModal{{ o.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow rounded-4">
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold">Назначить мастера (Заявка #{{ o.id }})</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="small text-muted mb-3">Устройство: <b>{{ o.device_type }} {{ o.brand_model }}</b></p>
+                                    <select class="form-select bg-light border-0 mb-3" id="masterSelect{{ o.id }}">
+                                        <option value="" disabled selected>Выберите мастера...</option>
+                                        {% for m in masters %}
+                                        <option value="{{ m.id }}" {% if o.master_id == m.id %}selected{% endif %}>{{ m.full_name }} ({{ m.specialization }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" class="btn btn-primary w-100 rounded-pill fw-medium" onclick="assignMaster({{ o.id }})">Сохранить назначение</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function assignMaster(orderId) {
+    const masterId = document.getElementById('masterSelect' + orderId).value;
+    if (!masterId) return alert('Выберите мастера');
+    
+    fetch('/api/order/' + orderId + '/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ master_id: masterId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

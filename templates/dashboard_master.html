@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold text-dark mb-4">Рабочий стол мастера</h3>
+    
+    <div class="row g-4">
+        {% for o in orders %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 border-start border-4 {% if o.status == 'Назначен мастер' %}border-danger{% elif o.status in ['В работе', 'Диагностика'] %}border-primary{% else %}border-success{% endif %}">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="small text-muted mb-1">Заявка #{{ o.id }} • {{ o.request_type }}</div>
+                            <h5 class="fw-bold text-dark mb-1">{{ o.device_type }}</h5>
+                            <div class="fw-medium text-dark small">{{ o.brand_model }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="small text-muted mb-1">Проблема клиента:</div>
+                            <p class="small text-dark mb-0 bg-light p-2 rounded">{{ o.issue_description }}</p>
+                        </div>
+                        <div class="col-md-2">
+                             <div class="small text-muted mb-1">Статус:</div>
+                             <span class="badge {% if o.status == 'Назначен мастер' %}bg-danger{% elif o.status == 'Готов к выдаче' %}bg-success{% else %}bg-primary{% endif %} rounded-pill px-3">{{ o.status }}</span>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <button class="btn btn-dark rounded-pill fw-medium px-4" data-bs-toggle="modal" data-bs-target="#updateModal{{ o.id }}">Обновить статус</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модалка обновления мастером -->
+        <div class="modal fade" id="updateModal{{ o.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow rounded-4">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold">Обновление заявки #{{ o.id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Новый статус</label>
+                            <select class="form-select bg-light border-0" id="statusSelect{{ o.id }}">
+                                <option value="Назначен мастер" {% if o.status == 'Назначен мастер' %}selected{% endif %}>Ожидает осмотра (Назначен мастер)</option>
+                                <option value="Диагностика" {% if o.status == 'Диагностика' %}selected{% endif %}>В процессе диагностики</option>
+                                <option value="В работе" {% if o.status == 'В работе' %}selected{% endif %}>Ремонтируется</option>
+                                <option value="Готов к выдаче" {% if o.status == 'Готов к выдаче' %}selected{% endif %}>Готов к выдаче</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Комментарий (диагноз/отчет для клиента)</label>
+                            <textarea class="form-control bg-light border-0" id="commentText{{ o.id }}" rows="3" placeholder="Опишите, что было сделано или выявлено...">{{ o.master_comment or '' }}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold text-muted">Итоговая/предварительная стоимость (₽)</label>
+                            <input type="number" class="form-control bg-light border-0 fw-bold" id="costInput{{ o.id }}" value="{{ "%.0f"|format(o.estimated_cost) }}">
+                        </div>
+                        <button type="button" class="btn btn-primary w-100 rounded-pill fw-medium" onclick="updateMasterData({{ o.id }})">Сохранить и уведомить клиента</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <h5 class="text-muted fw-medium">Нет назначенных заявок</h5>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateMasterData(orderId) {
+    const status = document.getElementById('statusSelect' + orderId).value;
+    const comment = document.getElementById('commentText' + orderId).value;
+    const cost = document.getElementById('costInput' + orderId).value;
+    
+    fetch('/api/order/' + orderId + '/master_update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status, comment: comment, cost: cost })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark mb-0">Мои заявки</h3>
+        <a href="{{ url_for('new_order', request_type='diagnostic') }}" class="btn btn-primary rounded-pill fw-medium shadow-sm">
+            <i class="fa-solid fa-plus me-2"></i>Новая заявка
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for o in orders %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-light text-dark border">{{ o.request_type }}</span>
+                        <span class="badge {% if o.status == 'Новая заявка' %}bg-secondary{% elif o.status == 'Назначен мастер' %}bg-info text-dark{% elif o.status in ['Диагностика', 'В работе'] %}bg-primary{% elif o.status == 'Готов к выдаче' %}bg-success{% else %}bg-dark{% endif %} rounded-pill">
+                            {{ o.status }}
+                        </span>
+                    </div>
+                    
+                    <h5 class="fw-bold text-dark mb-1">{{ o.device_type }}</h5>
+                    <p class="text-muted small mb-3">{{ o.brand_model or 'Модель не указана' }}</p>
+                    
+                    <div class="bg-light rounded-3 p-3 mb-3">
+                        <p class="small text-dark mb-0 fw-medium">Ваше описание:</p>
+                        <p class="small text-muted mb-0 text-truncate" style="max-height: 40px;">{{ o.issue_description }}</p>
+                    </div>
+
+                    {% if o.master_comment %}
+                    <div class="bg-primary-subtle rounded-3 p-3 mb-3">
+                        <p class="small text-primary mb-0 fw-bold"><i class="fa-solid fa-wrench me-1"></i> Ответ мастера:</p>
+                        <p class="small text-dark mb-0">{{ o.master_comment }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-end mt-auto pt-3 border-top">
+                        <div>
+                            <p class="text-muted small mb-0" style="font-size: 0.7rem;">Стоимость (предв.)</p>
+                            <span class="fw-bold text-dark fs-5">{{ "%.0f"|format(o.estimated_cost) }} ₽</span>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-muted small mb-0" style="font-size: 0.7rem;">Дата</p>
+                            <span class="text-muted small">{{ o.created_at.strftime('%d.%m.%Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="text-muted mb-3"><i class="fa-solid fa-box-open fs-1"></i></div>
+            <h5 class="fw-medium text-dark">У вас пока нет заявок</h5>
+            <p class="text-muted small">Оформите заявку на диагностику или ремонт, и она появится здесь.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
